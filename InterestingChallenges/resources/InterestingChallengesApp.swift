@@ -11,7 +11,8 @@ import SwiftUI
 struct InterestingChallengesApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CollectionView()
+                .ignoresSafeArea()
         }
     }
 }
