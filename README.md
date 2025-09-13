@@ -4,19 +4,32 @@ A visual algorithms playground showcasing data structures and algorithms through
 
 ## Features
 
-### Tree Data Structure Visualization
+### 🏠 Algorithm Catalog (Home View)
+- **Comprehensive Algorithm Library** - Browse 8+ algorithms across 5 categories
+- **Category Filtering** - Filter by Data Structures, Sorting, Graph Algorithms, etc.
+- **Visual Algorithm Cards** - Color-coded difficulty levels and category badges
+- **Implementation Status** - Track which algorithms are implemented vs coming soon
+
+### 🌳 Tree Data Structure Visualization
 - **Interactive Tree Collection View** - Pinterest-style layout using UIKit
-- **Expandable/Collapsible Nodes** - Tap to explore tree hierarchy  
+- **Expandable/Collapsible Nodes** - Tap to explore tree hierarchy
 - **Visual Depth Indicators** - Color-coded levels for easy navigation
-- **Hierarchical Content** - Categories, subcategories, and individual items
+- **Dual Data Models** - Support for both Pinterest-style content and simple hierarchical data
+- **iOS 26 Compatibility** - Fixed navigation title bug for search functionality
 
 ### Current Implementations
+
+#### Algorithm Home View (SwiftUI)
+- Algorithm catalog with 8 predefined algorithms (Tree, BST, Quick Sort, Merge Sort, Dijkstra, BFS, Dynamic Programming, Hash Table)
+- Category-based filtering system with visual chips
+- Search functionality with iOS 26 navigation fix
+- Navigation to detailed algorithm views
 
 #### Tree Structure (UIKit + Pinterest Layout)
 - Custom `TreeNode<T>` generic class with parent/child relationships
 - Pinterest-inspired masonry layout with custom flow
 - Animated expand/collapse interactions
-- Sample data: Pinterest-style content hierarchy (Food, Home Decor, Fashion, etc.)
+- Dual sample data: Pinterest-style content hierarchy + Simple hierarchical food categorization
 - Visual features: depth indicators, category badges, save counts
 
 ## Project Structure
@@ -26,14 +39,20 @@ InterestingChallenges/
 ├── collection/
 │   ├── domain/entities/
 │   │   ├── TreeNode.swift          # Generic tree data structure
-│   │   └── PinContent.swift        # Sample content model
+│   │   ├── PinContent.swift        # Pinterest-style sample content model
+│   │   └── SimpleItem.swift        # Simple hierarchical data model
 │   └── presentation/
 │       ├── TreeCollectionView.swift # Main UIKit collection view controller
 │       ├── PinterestTreeCell.swift  # Custom Pinterest-style cells
 │       ├── CollectionView.swift     # SwiftUI wrapper
 │       └── ContainerView.swift      # View container
 ├── home/
-│   └── ContentView.swift           # Basic SwiftUI home view
+│   ├── domain/entities/
+│   │   └── AlgorithmModel.swift     # Algorithm data models
+│   └── presentation/
+│       ├── ContentView.swift        # Main algorithms catalog view
+│       ├── HomeView.swift          # Alternative home view
+│       └── AlgorithmRowView.swift  # Individual algorithm row component
 └── resources/
     └── InterestingChallengesApp.swift # App entry point
 ```

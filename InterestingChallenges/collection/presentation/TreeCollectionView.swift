@@ -8,13 +8,13 @@
 import UIKit
 
 // MARK: - Main Collection View Controller
-class TreeCollectionView: UICollectionViewController, PinterestLayoutDelegate {
-    private var treeRoot: PinNode?
-    private var displayData: [(node: PinNode, section: Int, isVisible: Bool)] = []
+class TreeCollectionView: UICollectionViewController, SimpleTreeLayoutDelegate {
+    private var treeRoot: SimpleNode?
+    private var displayData: [(node: SimpleNode, section: Int)] = []
     private var sectionHeaders: [String] = []
     
     init() {
-        let layout = PinterestLayout()
+        let layout = SimpleTreeLayout()
         super.init(collectionViewLayout: layout)
         layout.delegate = self
         setupData()
@@ -31,9 +31,8 @@ class TreeCollectionView: UICollectionViewController, PinterestLayoutDelegate {
     }
     
     private func setupNavigationBar() {
-        title = "Pinterest Tree Demo"
+        title = "Tree CollectionView Demo"
         
-        // Add toolbar with demo actions
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             title: "Refresh",
             style: .plain,
@@ -51,17 +50,14 @@ class TreeCollectionView: UICollectionViewController, PinterestLayoutDelegate {
     
     private func setupCollectionView() {
         collectionView.backgroundColor = .systemGroupedBackground
-        collectionView.alwaysBounceVertical = true
         
-        // Register cells and headers
-        collectionView.register(PinterestTreeCell.self, forCellWithReuseIdentifier: "PinterestTreeCell")
+        collectionView.register(SimpleTreeCell.self, forCellWithReuseIdentifier: "SimpleTreeCell")
         collectionView.register(
-            PinterestSectionHeader.self,
+            SimpleSectionHeader.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: "PinterestSectionHeader"
+            withReuseIdentifier: "SimpleSectionHeader"
         )
         
-        // Add pull to refresh
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         collectionView.refreshControl = refreshControl
@@ -85,13 +81,13 @@ class TreeCollectionView: UICollectionViewController, PinterestLayoutDelegate {
         collectionView.reloadData()
     }
     
-    private func toggleExpansionRecursively(node: PinNode, expand: Bool) {
+    private func toggleExpansionRecursively(node: SimpleNode, expand: Bool) {
         node.isExpanded = expand
         node.children.forEach { toggleExpansionRecursively(node: $0, expand: expand) }
     }
     
     private func setupData() {
-        treeRoot = PinContent.createSampleTree()
+        treeRoot = SimpleItem.createSampleTree()
         rebuildDisplayData()
     }
     
@@ -102,26 +98,24 @@ class TreeCollectionView: UICollectionViewController, PinterestLayoutDelegate {
         guard let root = treeRoot else { return }
         
         var sectionIndex = 0
-        
-        // Process each depth level as a section
-        var levelNodes: [Int: [PinNode]] = [:]
+        var levelNodes: [Int: [SimpleNode]] = [:]
         collectVisibleNodes(node: root, level: 0, nodes: &levelNodes)
         
         let maxLevel = levelNodes.keys.max() ?? 0
         for level in 0...maxLevel {
             if let nodes = levelNodes[level], !nodes.isEmpty {
-                let headerTitle = level == 0 ? "Pinterest Home" : "Level \(level)"
+                let headerTitle = level == 0 ? "Root Level" : "Level \(level)"
                 sectionHeaders.append(headerTitle)
                 
                 for node in nodes {
-                    displayData.append((node: node, section: sectionIndex, isVisible: true))
+                    displayData.append((node: node, section: sectionIndex))
                 }
                 sectionIndex += 1
             }
         }
     }
     
-    private func collectVisibleNodes(node: PinNode, level: Int, nodes: inout [Int: [PinNode]]) {
+    private func collectVisibleNodes(node: SimpleNode, level: Int, nodes: inout [Int: [SimpleNode]]) {
         if nodes[level] == nil {
             nodes[level] = []
         }
@@ -134,20 +128,15 @@ class TreeCollectionView: UICollectionViewController, PinterestLayoutDelegate {
         }
     }
     
-    // MARK: - PinterestLayoutDelegate
-    func collectionView(_ collectionView: UICollectionView, heightForPhotoAtIndexPath indexPath: IndexPath) -> CGFloat {
+    // MARK: - SimpleTreeLayoutDelegate
+    func collectionView(_ collectionView: UICollectionView, heightForItemAt indexPath: IndexPath) -> CGFloat {
         let item = getDisplayItem(at: indexPath)
-        let baseHeight: CGFloat = 140
-        let aspectRatio = item.node.value.imageAspectRatio
-        let calculatedHeight = baseHeight * aspectRatio
-        
-        // Add extra height for text content and depth indicator
-        let textHeight: CGFloat = 60 + CGFloat(item.node.depth * 8)
-        
-        return calculatedHeight + textHeight
+        let baseHeight: CGFloat = 60
+        let depthPadding = CGFloat(item.node.depth * 5)
+        return baseHeight + depthPadding
     }
     
-    private func getDisplayItem(at indexPath: IndexPath) -> (node: PinNode, section: Int, isVisible: Bool) {
+    private func getDisplayItem(at indexPath: IndexPath) -> (node: SimpleNode, section: Int) {
         let itemsInSection = displayData.filter { $0.section == indexPath.section }
         return itemsInSection[indexPath.item]
     }
@@ -162,21 +151,21 @@ class TreeCollectionView: UICollectionViewController, PinterestLayoutDelegate {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PinterestTreeCell", for: indexPath) as! PinterestTreeCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SimpleTreeCell", for: indexPath) as! SimpleTreeCell
         let item = getDisplayItem(at: indexPath)
         cell.configure(with: item.node)
         return cell
     }
     
     override func collectionView(_ collectionView: UICollectionView,
-                                 viewForSupplementaryElementOfKind kind: String,
-                                 at indexPath: IndexPath) -> UICollectionReusableView {
+                                viewForSupplementaryElementOfKind kind: String,
+                                at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
             let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind,
-                withReuseIdentifier: "PinterestSectionHeader",
+                withReuseIdentifier: "SimpleSectionHeader",
                 for: indexPath
-            ) as! PinterestSectionHeader
+            ) as! SimpleSectionHeader
             
             header.configure(with: sectionHeaders[indexPath.section])
             return header
@@ -189,72 +178,52 @@ class TreeCollectionView: UICollectionViewController, PinterestLayoutDelegate {
         let item = getDisplayItem(at: indexPath)
         let node = item.node
         
-        // Toggle expansion if node has children
         if !node.children.isEmpty {
             node.toggleExpansion()
+            
+            let currentOffset = collectionView.contentOffset
             rebuildDisplayData()
             
             CATransaction.begin()
             CATransaction.setAnimationDuration(0.3)
+            CATransaction.setCompletionBlock {
+                collectionView.setContentOffset(currentOffset, animated: false)
+            }
+            
             collectionView.collectionViewLayout.invalidateLayout()
-            collectionView.reloadData() // ✅ Safe reload with animation
+            collectionView.reloadData()
             CATransaction.commit()
         } else {
-            // Show detail for leaf nodes
-            showPinDetail(for: node)
+            showItemDetail(for: node)
         }
     }
     
-    private func showPinDetail(for node: PinNode) {
+    private func showItemDetail(for node: SimpleNode) {
+        let parentTitle = node.parent?.value.title ?? "None"
         let alert = UIAlertController(
             title: node.value.title,
             message: """
-            Category: \(node.value.category)
-            Board: \(node.value.boardName ?? "None")
-            Saves: \(node.value.saveCount)
+            Parent: \(parentTitle)
             Tree Depth: \(node.depth)
             Children: \(node.children.count)
-            
-            \(node.value.description)
             """,
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "Save Pin", style: .default) { _ in
-            // Simulate saving pin
-            self.showToast(message: "Pin saved!")
-        })
-        
-        alert.addAction(UIAlertAction(title: "Share", style: .default) { _ in
-            // Simulate sharing
-            self.showToast(message: "Pin shared!")
-        })
-        
-        alert.addAction(UIAlertAction(title: "Close", style: .cancel))
-        
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
-    }
-    
-    private func showToast(message: String) {
-        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        present(alert, animated: true)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            alert.dismiss(animated: true)
-        }
     }
 }
 
-// MARK: - Pinterest Style Custom Layout
-class PinterestLayout: UICollectionViewLayout {
-    // Layout configuration
-    weak var delegate: PinterestLayoutDelegate?
+// MARK: - Simple Custom Layout
+class SimpleTreeLayout: UICollectionViewLayout {
     
-    private var numberOfColumns = 3
+    weak var delegate: SimpleTreeLayoutDelegate?
+    
+    private var numberOfColumns = 2
     private var cellPadding: CGFloat = 8
-    private var headerHeight: CGFloat = 50
+    private var headerHeight: CGFloat = 40
     
-    // Cache
     private var cache: [UICollectionViewLayoutAttributes] = []
     private var contentHeight: CGFloat = 0
     
@@ -279,7 +248,6 @@ class PinterestLayout: UICollectionViewLayout {
             // Section header
             if collectionView.numberOfItems(inSection: section) > 0 {
                 let headerIndexPath = IndexPath(item: 0, section: section)
-                let headerHeight = self.headerHeight
                 let headerY = columnHeights.max()! + cellPadding
                 
                 let headerFrame = CGRect(
@@ -296,7 +264,6 @@ class PinterestLayout: UICollectionViewLayout {
                 headerAttributes.frame = headerFrame
                 cache.append(headerAttributes)
                 
-                // Update column heights
                 let newHeight = headerFrame.maxY + cellPadding
                 columnHeights = columnHeights.map { _ in newHeight }
             }
@@ -305,12 +272,11 @@ class PinterestLayout: UICollectionViewLayout {
             for item in 0..<collectionView.numberOfItems(inSection: section) {
                 let indexPath = IndexPath(item: item, section: section)
                 
-                let photoHeight = delegate?.collectionView(
+                let height = delegate?.collectionView(
                     collectionView,
-                    heightForPhotoAtIndexPath: indexPath
-                ) ?? 120
+                    heightForItemAt: indexPath
+                ) ?? 80
                 
-                let height = cellPadding * 2 + photoHeight
                 let shortestColumnIndex = columnHeights.enumerated().min { $0.element < $1.element }?.offset ?? 0
                 
                 let frame = CGRect(
@@ -352,8 +318,8 @@ class PinterestLayout: UICollectionViewLayout {
     }
 }
 
-// MARK: - Pinterest Layout Delegate
-protocol PinterestLayoutDelegate: AnyObject {
+// MARK: - Layout Delegate
+protocol SimpleTreeLayoutDelegate: AnyObject {
     func collectionView(_ collectionView: UICollectionView,
-                        heightForPhotoAtIndexPath indexPath: IndexPath) -> CGFloat
+                       heightForItemAt indexPath: IndexPath) -> CGFloat
 }
