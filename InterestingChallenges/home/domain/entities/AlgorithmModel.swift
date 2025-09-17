@@ -63,6 +63,15 @@ extension Algorithm {
             isImplemented: true
         ),
         Algorithm(
+            title: "Table View Implementation",
+            description: "A clean and efficient way to display and interact with a list of data and images",
+            category: .dataStructures,
+            difficulty: .advanced,
+            systemImage: "tablecells.fill",
+            color: .yellow,
+            isImplemented: true
+        ),
+        Algorithm(
             title: "Binary Search Tree",
             description: "Self-balancing binary search tree with insertion, deletion, and traversal operations",
             category: .dataStructures,

@@ -17,6 +17,13 @@ A visual algorithms playground showcasing data structures and algorithms through
 - **Dual Data Models** - Support for both Pinterest-style content and simple hierarchical data
 - **iOS 26 Compatibility** - Fixed navigation title bug for search functionality
 
+### 📱 Classic Table View with Image Caching
+- **Advanced Image Loading** - Multi-tier caching system (memory + disk + URLCache)
+- **Request Management** - Proper cancellation and cell reuse handling
+- **Performance Optimization** - Image prefetching and automatic memory management
+- **Modern UI Design** - Card-based layout with smooth animations
+- **Cache Controls** - Manual cache clearing and memory pressure handling
+
 ### Current Implementations
 
 #### Algorithm Home View (SwiftUI)
@@ -32,6 +39,13 @@ A visual algorithms playground showcasing data structures and algorithms through
 - Dual sample data: Pinterest-style content hierarchy + Simple hierarchical food categorization
 - Visual features: depth indicators, category badges, save counts
 
+#### Table View with Image Caching (UIKit)
+- Advanced image loading system with three-tier caching (memory, disk, URLCache)
+- Proper request cancellation to prevent cell reuse issues
+- Image prefetching for smooth scrolling performance
+- Custom table view cells with card-style design and shadow effects
+- Performance monitoring and cache management tools
+
 ## Project Structure
 
 ```
@@ -46,6 +60,16 @@ InterestingChallenges/
 │       ├── PinterestTreeCell.swift  # Custom Pinterest-style cells
 │       ├── CollectionView.swift     # SwiftUI wrapper
 │       └── ContainerView.swift      # View container
+├── table/
+│   ├── domain/
+│   │   ├── entities/
+│   │   │   └── ImageItem.swift      # Image data model
+│   │   └── artifacts/
+│   │       └── ImageLoader.swift    # Advanced image caching system
+│   └── presentation/
+│       ├── TableView.swift          # Main table view controller
+│       ├── ImageTableViewCell.swift # Custom image table cells
+│       └── TableViewContainer.swift # SwiftUI wrapper
 ├── home/
 │   ├── domain/entities/
 │   │   └── AlgorithmModel.swift     # Algorithm data models
@@ -61,10 +85,10 @@ InterestingChallenges/
 
 1. Open `InterestingChallenges.xcodeproj` in Xcode
 2. Build and run the project
-3. Interact with the Pinterest-style tree view:
-   - Tap nodes with children to expand/collapse
-   - Tap leaf nodes to view details
-   - Use navigation buttons to expand/collapse all
+3. Explore the different implementations:
+   - **Tree View**: Tap nodes with children to expand/collapse, use navigation buttons to expand/collapse all
+   - **Table View**: Scroll through image list with smooth caching, tap "Clear Cache" to test performance
+   - **Algorithm Catalog**: Browse and filter algorithms by category
 
 ## Architecture
 
