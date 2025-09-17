@@ -95,6 +95,10 @@ struct HomeView: View {
             CollectionView()
                 .navigationTitle("Tree Structure")
                 .navigationBarTitleDisplayMode(.inline)
+        } else if algorithm.title == "Table View Implementation" && algorithm.isImplemented {
+            TableViewContainer()
+                .navigationTitle("Table View")
+                .navigationBarTitleDisplayMode(.inline)
         } else {
             ComingSoonView(algorithm: algorithm)
         }
